@@ -275,12 +275,15 @@ class PostFollowTest(TestCase):
         cls.user_following = User.objects.create_user(
             username="user_following"
         )
+        cls.user_random = User.objects.create_user(username="user_random")
 
         cls.authorized_client_follower = Client()
         cls.authorized_client_following = Client()
+        cls.authorized_client_random = Client()
 
         cls.authorized_client_follower.force_login(cls.user_follower)
         cls.authorized_client_following.force_login(cls.user_following)
+        cls.authorized_client_random.force_login(cls.user_random)
 
         cls.post = Post.objects.create(
             text="test_text",
@@ -288,28 +291,60 @@ class PostFollowTest(TestCase):
         )
 
     def test_follow(self):
-        self.authorized_client_follower.get(
-            reverse(
-                "posts:profile_follow", args=(self.user_following.username,)
+        Follow.objects.create(
+            user=self.user_follower,
+            author=self.user_following,
+        )
+        self.assertTrue(
+            Follow.objects.filter(
+                user=self.user_follower,
+                author=self.user_following,
             )
         )
-        self.assertEqual(Follow.objects.count(), 1)
 
     def test_unfollow(self):
+        Follow.objects.create(
+            user=self.user_follower,
+            author=self.user_following,
+        )
         self.authorized_client_follower.get(
             reverse(
-                "posts:profile_unfollow",
-                kwargs={"username": self.user_following.username},
+                "posts:profile_unfollow", args=(self.user_following.username,)
             )
         )
-        self.assertEqual(Follow.objects.count(), 0)
-
-    def test_new_following_post_in_feed(self):
-        Follow.objects.create(
-            user=self.user_follower, author=self.user_following
+        self.assertFalse(
+            Follow.objects.filter(
+                user=self.user_follower,
+                author=self.user_following,
+            )
         )
+
+    def test_new_post_in_followers_feed(self):
+        Follow.objects.create(
+            user=self.user_follower,
+            author=self.user_following,
+        )
+        post = Post.objects.create(
+            author=self.user_following, text="test_text"
+        )
+
         response = self.authorized_client_follower.get(
             reverse("posts:follow_index")
         )
-        post_text = response.context["page_obj"][0].text
-        self.assertEqual(self.post.text, post_text)
+
+        self.assertIn(post, response.context["page_obj"])
+
+    def test_new_post_not_in_randoms_feed(self):
+        Follow.objects.create(
+            user=self.user_follower,
+            author=self.user_following,
+        )
+        post = Post.objects.create(
+            author=self.user_following, text="test_text"
+        )
+
+        response = self.authorized_client_random.get(
+            reverse("posts:follow_index")
+        )
+
+        self.assertNotIn(post, response.context["page_obj"])

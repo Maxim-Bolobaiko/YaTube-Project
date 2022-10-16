@@ -55,6 +55,10 @@ class PostsCreatePostTest(TestCase):
         super().tearDownClass()
         shutil.rmtree(TEMP_MEDIA_ROOT, ignore_errors=True)
 
+    # def tearDown(self):
+    #     super().tearDown()
+    #     shutil.rmtree(TEMP_MEDIA_ROOT, ignore_errors=True)
+
     def test_create_post(self):
 
         posts_count = Post.objects.count()
@@ -136,7 +140,8 @@ class PostsCreatePostTest(TestCase):
         )
         self.assertEqual(Comment.objects.count(), comments_count + 1)
         comment = Comment.objects.first()
-        self.assertEqual(comment.text, "Текст комментария")
+        self.assertEqual(comment.text, form_data["text"])
+        self.assertEqual(comment.author, self.user)
 
     def test_comment_for_guest_client(self):
         comments_count = Comment.objects.count()

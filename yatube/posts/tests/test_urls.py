@@ -44,7 +44,17 @@ class PostsURLTests(TestCase):
         cls.GROUP_URL = f"/group/{cls.group.slug}/"
         cls.PROFILE_URL = f"/profile/{cls.user_and_author.username}/"
         cls.POST_CREATE_URL = "/create/"
+
+        cls.ADD_COMMENT_URL = f"/posts/{cls.post.id}/comment/"
+
+        cls.FOLLOW_INDEX_URL = "/follow/"
+        cls.PROFILE_FOLLOW = f"/profile/{cls.user_and_author.username}/follow/"
+        cls.PROFILE_UNFOLLOW = (
+            f"/profile/{cls.user_and_author.username}/unfollow/"
+        )
+
         cls.LOGIN_URL = "/auth/login/"
+
         cls.UNEXISTING_URL = "/unexisting/"
 
     def setUp(self):
@@ -86,6 +96,40 @@ class PostsURLTests(TestCase):
         response = self.guest_client.get(self.POST_EDIT_URL, follow=True)
         self.assertRedirects(
             response, self.LOGIN_URL + "?next=" + self.POST_EDIT_URL
+        )
+
+    def test_comment(self):
+        response = self.authorized_client_and_author.get(self.ADD_COMMENT_URL)
+        self.assertRedirects(response, self.POST_URL)
+
+    def test_follow_index(self):
+        response = self.authorized_client_and_author.get(self.FOLLOW_INDEX_URL)
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+
+    def test_follow_index_for_guest_client(self):
+        response = self.guest_client.get(self.FOLLOW_INDEX_URL)
+        self.assertRedirects(
+            response, self.LOGIN_URL + "?next=" + self.FOLLOW_INDEX_URL
+        )
+
+    def test_profile_follow(self):
+        response = self.authorized_client_and_author.get(self.PROFILE_FOLLOW)
+        self.assertRedirects(response, self.PROFILE_URL)
+
+    def test_profile_follow_for_guest_client(self):
+        response = self.guest_client.get(self.PROFILE_FOLLOW)
+        self.assertRedirects(
+            response, self.LOGIN_URL + "?next=" + self.PROFILE_FOLLOW
+        )
+
+    def test_profile_unfollow(self):
+        response = self.authorized_client_and_author.get(self.PROFILE_UNFOLLOW)
+        self.assertRedirects(response, self.PROFILE_URL)
+
+    def test_profile_unfollow_for_guest_client(self):
+        response = self.guest_client.get(self.PROFILE_UNFOLLOW)
+        self.assertRedirects(
+            response, self.LOGIN_URL + "?next=" + self.PROFILE_UNFOLLOW
         )
 
     def error_404(self):
