@@ -87,8 +87,8 @@ class PostsPagesTest(TestCase):
 
     @classmethod
     def tearDownClass(cls):
-        super().tearDownClass()
         shutil.rmtree(TEMP_MEDIA_ROOT, ignore_errors=True)
+        super().tearDownClass()
 
     def setUp(self):
         cache.clear()
@@ -291,10 +291,13 @@ class PostFollowTest(TestCase):
         )
 
     def test_follow(self):
-        Follow.objects.create(
-            user=self.user_follower,
-            author=self.user_following,
+        follow_count = Follow.objects.count()
+        self.authorized_client_follower.get(
+            reverse(
+                "posts:profile_follow", args=(self.user_following.username,)
+            )
         )
+        self.assertEqual(Follow.objects.count(), follow_count + 1)
         self.assertTrue(
             Follow.objects.filter(
                 user=self.user_follower,
@@ -303,6 +306,7 @@ class PostFollowTest(TestCase):
         )
 
     def test_unfollow(self):
+        follow_count = Follow.objects.count()
         Follow.objects.create(
             user=self.user_follower,
             author=self.user_following,
@@ -312,6 +316,7 @@ class PostFollowTest(TestCase):
                 "posts:profile_unfollow", args=(self.user_following.username,)
             )
         )
+        self.assertEqual(Follow.objects.count(), follow_count)
         self.assertFalse(
             Follow.objects.filter(
                 user=self.user_follower,

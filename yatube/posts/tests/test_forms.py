@@ -52,12 +52,8 @@ class PostsCreatePostTest(TestCase):
 
     @classmethod
     def tearDownClass(cls):
-        super().tearDownClass()
         shutil.rmtree(TEMP_MEDIA_ROOT, ignore_errors=True)
-
-    # def tearDown(self):
-    #     super().tearDown()
-    #     shutil.rmtree(TEMP_MEDIA_ROOT, ignore_errors=True)
+        super().tearDownClass()
 
     def test_create_post(self):
 
