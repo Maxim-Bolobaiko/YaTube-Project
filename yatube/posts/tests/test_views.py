@@ -225,14 +225,14 @@ class PostsPaginatorTest(TestCase):
             "profile": self.PROFILE_URL + "?page=2",
         }
 
-        posts_on_N_page = Post.objects.count() % settings.PAGE_NUMBER_CONST
+        posts_on_n_page = Post.objects.count() % settings.PAGE_NUMBER_CONST
 
         for name, url in names_urls.items():
             with self.subTest(name=name):
                 response = self.authorized_client.get(url)
                 self.assertEqual(
                     len(response.context.get("page_obj").object_list),
-                    posts_on_N_page,
+                    posts_on_n_page,
                 )
 
 
