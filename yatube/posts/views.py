@@ -3,11 +3,11 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.cache import cache_page
 
 from .forms import CommentForm, PostForm
-from .models import Follow, Group, Post, User
+from .models import Comment, Follow, Group, Post, User
 from .utils import paginator_func
 
 
-@cache_page(20, key_prefix="index_page")
+@cache_page(5, key_prefix="index_page")
 def index(request):
     template = "posts/index.html"
     post_list = Post.objects.all()
@@ -95,6 +95,14 @@ def post_edit(request, post_id):
 
 
 @login_required
+def post_delete(request, post_id):
+    post = get_object_or_404(Post, pk=post_id)
+    if request.user == post.author:
+        post.delete()
+    return redirect("posts:profile", username=post.author)
+
+
+@login_required
 def add_comment(request, post_id):
     post = get_object_or_404(Post, pk=post_id)
     form = CommentForm(request.POST or None)
@@ -104,6 +112,15 @@ def add_comment(request, post_id):
         comment.post = post
         comment.save()
     return redirect("posts:post_detail", post_id=post_id)
+
+
+@login_required
+def delete_comment(request, comment_id):
+    comment = get_object_or_404(Comment, pk=comment_id)
+    post_comment_id = comment.post_id
+    if request.user.username == comment.author.username:
+        comment.delete()
+    return redirect("posts:post_detail", post_comment_id)
 
 
 @login_required

@@ -45,6 +45,11 @@
           Редактировать запись
         </a>
       {% endif %}
+      {% if post.author == request.user %}
+        <a class="btn btn-secondary" href="{% url 'posts:post_delete' post.pk %}">
+          Удалить запись
+        </a>
+      {% endif %}
       {% include "posts/includes/post_comment.html" %}
     </article>
   </div>

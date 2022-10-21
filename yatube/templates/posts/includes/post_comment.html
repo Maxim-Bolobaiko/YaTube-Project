@@ -26,6 +26,11 @@
       <p>
         {{ comment.text }}
       </p>
+      {% if comment.author.username == user.username %}
+        <a href="{% url 'posts:delete_comment' comment.id %}" class='btn btn-sm btn-outline-danger float-end' role='button'>
+          Удалить
+        </a>
+      {% endif %}
     </div>
   </div>
 {% endfor %}
