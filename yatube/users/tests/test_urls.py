@@ -34,21 +34,15 @@ class UsersURLTests(TestCase):
 
     def test_password_change_redirect_for_guest_client(self):
         response = self.guest_client.get("/auth/password_change/", follow=True)
-        self.assertRedirects(
-            response, "/auth/login/?next=/auth/password_change/"
-        )
+        self.assertRedirects(response, "/auth/login/?next=/auth/password_change/")
 
     def test_password_change_done(self):
         response = self.authorized_client.get("/auth/password_change/done/")
         self.assertEqual(response.status_code, HTTPStatus.OK)
 
     def test_password_change_redirect_for_guest_client(self):
-        response = self.guest_client.get(
-            "/auth/password_change/done/", follow=True
-        )
-        self.assertRedirects(
-            response, "/auth/login/?next=/auth/password_change/done/"
-        )
+        response = self.guest_client.get("/auth/password_change/done/", follow=True)
+        self.assertRedirects(response, "/auth/login/?next=/auth/password_change/done/")
 
     def error_404(self):
         response = self.guest_client.get("/unexisting/")

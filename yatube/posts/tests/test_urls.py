@@ -15,17 +15,13 @@ class PostsURLTests(TestCase):
         cls.guest_client = Client()
 
         cls.user_and_author = User.objects.create_user(username="test_author")
-        cls.user_and_not_author = User.objects.create_user(
-            username="test_not_author"
-        )
+        cls.user_and_not_author = User.objects.create_user(username="test_not_author")
 
         cls.authorized_client_and_author = Client()
         cls.authorized_client_and_author.force_login(cls.user_and_author)
 
         cls.authorized_client_and_not_author = Client()
-        cls.authorized_client_and_not_author.force_login(
-            cls.user_and_not_author
-        )
+        cls.authorized_client_and_not_author.force_login(cls.user_and_not_author)
 
         cls.group = Group.objects.create(
             title="test_title",
@@ -49,9 +45,7 @@ class PostsURLTests(TestCase):
 
         cls.FOLLOW_INDEX_URL = "/follow/"
         cls.PROFILE_FOLLOW = f"/profile/{cls.user_and_author.username}/follow/"
-        cls.PROFILE_UNFOLLOW = (
-            f"/profile/{cls.user_and_author.username}/unfollow/"
-        )
+        cls.PROFILE_UNFOLLOW = f"/profile/{cls.user_and_author.username}/unfollow/"
 
         cls.LOGIN_URL = "/auth/login/"
 
@@ -78,25 +72,19 @@ class PostsURLTests(TestCase):
 
     def test_post_create_redirect_for_guest_client(self):
         response = self.guest_client.get(self.POST_CREATE_URL, follow=True)
-        self.assertRedirects(
-            response, self.LOGIN_URL + "?next=" + self.POST_CREATE_URL
-        )
+        self.assertRedirects(response, self.LOGIN_URL + "?next=" + self.POST_CREATE_URL)
 
     def test_post_edit_for_author(self):
         response = self.authorized_client_and_author.get(self.POST_EDIT_URL)
         self.assertEqual(response.status_code, HTTPStatus.OK)
 
     def test_post_edit_for_not_author(self):
-        response = self.authorized_client_and_not_author.get(
-            self.POST_EDIT_URL
-        )
+        response = self.authorized_client_and_not_author.get(self.POST_EDIT_URL)
         self.assertRedirects(response, self.POST_URL)
 
     def test_post_edit_for_guest_client(self):
         response = self.guest_client.get(self.POST_EDIT_URL, follow=True)
-        self.assertRedirects(
-            response, self.LOGIN_URL + "?next=" + self.POST_EDIT_URL
-        )
+        self.assertRedirects(response, self.LOGIN_URL + "?next=" + self.POST_EDIT_URL)
 
     def test_comment(self):
         response = self.authorized_client_and_author.get(self.ADD_COMMENT_URL)
@@ -118,9 +106,7 @@ class PostsURLTests(TestCase):
 
     def test_profile_follow_for_guest_client(self):
         response = self.guest_client.get(self.PROFILE_FOLLOW)
-        self.assertRedirects(
-            response, self.LOGIN_URL + "?next=" + self.PROFILE_FOLLOW
-        )
+        self.assertRedirects(response, self.LOGIN_URL + "?next=" + self.PROFILE_FOLLOW)
 
     def test_profile_unfollow(self):
         response = self.authorized_client_and_author.get(self.PROFILE_UNFOLLOW)

@@ -53,12 +53,8 @@ class PostsPagesTest(TestCase):
 
         cls.templates_pages_names = {
             reverse("posts:index"): "posts/index.html",
-            reverse(
-                "posts:group_list", args=[cls.group.slug]
-            ): "posts/group_list.html",
-            reverse(
-                "posts:profile", args=[cls.user.username]
-            ): "posts/profile.html",
+            reverse("posts:group_list", args=[cls.group.slug]): "posts/group_list.html",
+            reverse("posts:profile", args=[cls.user.username]): "posts/profile.html",
             reverse(
                 "posts:post_detail", kwargs={"post_id": cls.post.pk}
             ): "posts/post_detail.html",
@@ -69,15 +65,11 @@ class PostsPagesTest(TestCase):
         }
 
         cls.INDEX_URL = reverse("posts:index")
-        cls.GROUP_URL = reverse(
-            "posts:group_list", kwargs={"slug": cls.group.slug}
-        )
+        cls.GROUP_URL = reverse("posts:group_list", kwargs={"slug": cls.group.slug})
         cls.PROFILE_URL = reverse(
             "posts:profile", kwargs={"username": cls.user.username}
         )
-        cls.POST_EDIT_URL = reverse(
-            "posts:post_edit", kwargs={"post_id": cls.post.pk}
-        )
+        cls.POST_EDIT_URL = reverse("posts:post_edit", kwargs={"post_id": cls.post.pk})
         cls.POST_CREATE_URL = reverse("posts:post_create")
 
         cls.form_fields = {
@@ -191,15 +183,11 @@ class PostsPaginatorTest(TestCase):
 
         cls.posts = []
         for i in range(cls.POSTS_COUNT):
-            cls.posts.append(
-                Post(author=cls.user, group=cls.group, text="test_text")
-            )
+            cls.posts.append(Post(author=cls.user, group=cls.group, text="test_text"))
         cls.post = Post.objects.bulk_create(cls.posts)
 
         cls.INDEX_URL = reverse("posts:index")
-        cls.GROUP_URL = reverse(
-            "posts:group_list", kwargs={"slug": cls.group.slug}
-        )
+        cls.GROUP_URL = reverse("posts:group_list", kwargs={"slug": cls.group.slug})
         cls.PROFILE_URL = reverse(
             "posts:profile", kwargs={"username": cls.user.username}
         )
@@ -272,9 +260,7 @@ class PostFollowTest(TestCase):
         super().setUpClass()
 
         cls.user_follower = User.objects.create_user(username="user_follower")
-        cls.user_following = User.objects.create_user(
-            username="user_following"
-        )
+        cls.user_following = User.objects.create_user(username="user_following")
         cls.user_random = User.objects.create_user(username="user_random")
 
         cls.authorized_client_follower = Client()
@@ -293,9 +279,7 @@ class PostFollowTest(TestCase):
     def test_follow(self):
         follow_count = Follow.objects.count()
         self.authorized_client_follower.get(
-            reverse(
-                "posts:profile_follow", args=(self.user_following.username,)
-            )
+            reverse("posts:profile_follow", args=(self.user_following.username,))
         )
         self.assertEqual(Follow.objects.count(), follow_count + 1)
         self.assertTrue(
@@ -312,9 +296,7 @@ class PostFollowTest(TestCase):
             author=self.user_following,
         )
         self.authorized_client_follower.get(
-            reverse(
-                "posts:profile_unfollow", args=(self.user_following.username,)
-            )
+            reverse("posts:profile_unfollow", args=(self.user_following.username,))
         )
         self.assertEqual(Follow.objects.count(), follow_count)
         self.assertFalse(
@@ -329,13 +311,9 @@ class PostFollowTest(TestCase):
             user=self.user_follower,
             author=self.user_following,
         )
-        post = Post.objects.create(
-            author=self.user_following, text="test_text"
-        )
+        post = Post.objects.create(author=self.user_following, text="test_text")
 
-        response = self.authorized_client_follower.get(
-            reverse("posts:follow_index")
-        )
+        response = self.authorized_client_follower.get(reverse("posts:follow_index"))
 
         self.assertIn(post, response.context["page_obj"])
 
@@ -344,12 +322,8 @@ class PostFollowTest(TestCase):
             user=self.user_follower,
             author=self.user_following,
         )
-        post = Post.objects.create(
-            author=self.user_following, text="test_text"
-        )
+        post = Post.objects.create(author=self.user_following, text="test_text")
 
-        response = self.authorized_client_random.get(
-            reverse("posts:follow_index")
-        )
+        response = self.authorized_client_random.get(reverse("posts:follow_index"))
 
         self.assertNotIn(post, response.context["page_obj"])
