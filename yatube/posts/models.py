@@ -27,7 +27,11 @@ class Post(models.Model):
         on_delete=models.SET_NULL,
     )
     image = models.ImageField("Картинка", upload_to="posts/", blank=True)
+
     likes = models.ManyToManyField(User, related_name="likes")
+
+    def likes_count(self):
+        return self.likes.count()
 
     class Meta:
         ordering = ["-pub_date"]

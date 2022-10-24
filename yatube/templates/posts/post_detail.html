@@ -50,6 +50,28 @@
           Удалить запись
         </a>
       {% endif %}
+      <br>
+      <br>
+      {% if user.is_authenticated %}
+        <form action="{% url 'posts:likes' post.pk%}" method="POST">
+          {% csrf_token %}
+          {% if post_is_liked %}
+            <button type="submit" name="post_id" value="{{post.pk}}" class="btn btn-info">
+              Не нравится
+            </button>
+          {% else %}
+            <button type="submit" name="post_id" value="{{post.pk}}" class="btn btn-info">
+              Нравится
+            </button>
+          {% endif %}
+        </form>
+      {% else %}
+        <a class="btn btn-outline-info" href="{% url 'login' %}?next={{request.path}}">
+          Log in to like this article!
+        </a>
+        <br>
+      {% endif %}
+      <strong class="text-secondary">{{ likes_count }} Like{{ likes_count|pluralize }}</strong>
       {% include "posts/includes/post_comment.html" %}
     </article>
   </div>

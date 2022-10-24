@@ -1,5 +1,7 @@
 from django.contrib.auth.decorators import login_required
+from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse
 from django.views.decorators.cache import cache_page
 
 from .forms import CommentForm, PostForm
@@ -50,11 +52,19 @@ def post_detail(request, post_id):
     posts_count = post.author.posts.count()
     form = CommentForm(request.POST or None)
     comments = post.comments.all()
+
+    liked = False
+
+    if post.likes.filter(id=request.user.id).exists():
+        liked = True
+
     context = {
         "post": post,
         "posts_count": posts_count,
         "form": form,
         "comments": comments,
+        "likes_count": post.likes_count(),
+        "post_is_liked": liked,
     }
     return render(request, template, context)
 
@@ -148,3 +158,14 @@ def profile_unfollow(request, username):
     if followed.exists():
         followed.delete()
     return redirect("posts:profile", username=username)
+
+
+@login_required
+def post_like(request, post_id):
+    post = get_object_or_404(Post, pk=post_id)
+    if post.likes.filter(id=request.user.id).exists():
+        post.likes.remove(request.user)
+    else:
+        post.likes.add(request.user)
+
+    return redirect("posts:post_detail", post_id=post_id)
